@@ -100,6 +100,29 @@ describe('csraQuestionController', () => {
     )
   })
 
+  it('passes provisional-rating state to the evidence sources question', async () => {
+    csraService.getCsraAssessment.mockResolvedValue(
+      makeAssessment({
+        interimResult: 'HIGH_GENERAL',
+        stages: [makeStageAnswers({ pncChecked: true })],
+      }),
+    )
+    const res = response()
+
+    await controller()(request('GET', {}, '0', 'evidenceAndOffences'), res, jest.fn())
+
+    expect(res.render).toHaveBeenCalledWith(
+      'pages/csraQuestion',
+      expect.objectContaining({
+        provisionalRatingEntered: true,
+        questionContext: expect.objectContaining({ provisionalRatingEntered: true }),
+        currentStep: expect.objectContaining({
+          questions: [expect.objectContaining({ id: 'evidenceSources' })],
+        }),
+      }),
+    )
+  })
+
   it.each([
     { stepId: undefined, complete: false },
     { stepId: 'invalid', complete: false },
